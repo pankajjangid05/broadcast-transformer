@@ -12,6 +12,7 @@ import java.util.function.Consumer;
 
 import javax.xml.bind.JAXBException;
 
+import com.fasterxml.jackson.core.JsonParser;
 import messagerosa.core.model.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -149,8 +150,14 @@ public class BroadcastConsumerReactive {
 											data.setValue(user.get("fcmClickActionUrl").toString());
 											dataArrayList.add(data);
 										}
+										// TODO Need to check this logic more
 										if(!user.isNull("data")){
-											Map<String, String> dataMap = mapper.readValue(user.get("data").toString(), new TypeReference<Map<String, String>>() {});
+
+											mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
+
+//											List<Data> dataList = mapper.readValue(user.get("data").toString(),
+//													new TypeReference<List<Data>>() {});
+											HashMap<String, String> dataMap = mapper.readValue(user.get("data").toString(), new TypeReference<HashMap<String, String>>() {});
 											for(String dataKey : dataMap.keySet()){
 												data = new Data();
 												data.setKey(dataKey);
