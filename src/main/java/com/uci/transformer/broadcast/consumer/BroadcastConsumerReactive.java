@@ -126,7 +126,7 @@ public class BroadcastConsumerReactive {
 									}
 									
 
-									if(user.get("fcmToken") != null) {
+									if(!user.isNull("fcmToken")) {
 										ArrayList<Data> dataArrayList = new ArrayList<>();
 										Data data = new Data();
 										data.setKey("fcmToken");
@@ -143,14 +143,19 @@ public class BroadcastConsumerReactive {
 												dataArrayList.add(data);
 											}
 										}
-										if (user.get("fcmClickActionUrl") != null) {
+										if (!user.isNull("fcmClickActionUrl")) {
 											data = new Data();
 											data.setKey("fcmClickActionUrl");
 											data.setValue(user.get("fcmClickActionUrl").toString());
 											dataArrayList.add(data);
 										}
+										Map<String, String> dataMap = null;
 										if(!user.isNull("data")){
-											Map<String, String> dataMap = mapper.readValue(user.get("data").toString(), new TypeReference<Map<String, String>>() {});
+											dataMap = mapper.readValue(user.get("data").toString(), new TypeReference<Map<String, String>>() {});
+										} else if(!user.isNull("notification")){
+											dataMap = mapper.readValue(user.get("notification").toString(), new TypeReference<Map<String, String>>() {});
+										}
+										if(dataMap != null && dataMap.size() > 0){
 											for(String dataKey : dataMap.keySet()){
 												data = new Data();
 												data.setKey(dataKey);
@@ -159,6 +164,8 @@ public class BroadcastConsumerReactive {
 											}
 										}
 										payload.setData(dataArrayList);
+									} else {
+										log.error("fcmToken not found : " + user);
 									}
 
 
